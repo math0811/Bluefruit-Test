@@ -56,7 +56,7 @@ function refreshDeviceList(){
 
 function onDiscoverDevice(device){
 	//Make a list in html and show devises
-		if(device.name=="GRINGO") {
+
 			
 			
 		
@@ -64,7 +64,7 @@ function onDiscoverDevice(device){
 		html = device.name+ "," + device.id;
 		listItem.innerHTML = html;
 		document.getElementById("bleDeviceList").appendChild(listItem);
-		}
+
 }
 
 
