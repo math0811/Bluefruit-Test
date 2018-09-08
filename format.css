@@ -1,40 +1,56 @@
-body{
-	background-color: green;
-}	
-img{
-	width: 100%;	
+body {
+    background-color: white;
 }
 
-/* The content div soround
-  * every thing in the body
-  * The css make content  smaller than the body itself
-  * and centret.
-  */
+img {
+    width: 100%;
+}
+
 #content {
-	width: 75%;
-	margin: auto;
+    width: 75%;
+    margin: auto;
 }
 
-#bleDeviceList{
-	
-}	
-#messageInput{
-	
+#bleDeviceList {
+    height: 256px;
+    border: 1px solid lightgrey;
+    overflow-y: auto;
+
+    -webkit-overflow-scrolling: touch;
 }
-#list{
-	background-color: red;
+
+#bleDeviceList .ble-device {
+    appearance: none;
+    padding: 8px;
+    font-size: 20px;
+    list-style: none;
+}
+
+#messageInput {
+
+}
+
+#list {
+    background-color: red;
+}
+
+.button {
+    padding: 8px;
 }
 
 /* width will be 100% of content */
-#refreshButton{
-	width: 100%;
+#refreshButton {
+    width: 100%;
 }
-#sendButton{
-	width: 100%;
+
+#sendButton {
+    width: 100%;
 }
-#ledOnButton{
-	width: 100%;
+
+#ledOnButton {
+    width: 100%;
 }
-#ledOffButton{
-	width: 100%;
+
+#ledOffButton {
+    width: 100%;
 }
