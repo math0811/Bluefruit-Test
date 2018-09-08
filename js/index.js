@@ -1,116 +1,113 @@
-// Based on an example:
-//https://github.com/don/cordova-plugin-ble-central
-
-
-// ASCII only
-function bytesToString(buffer) {
-    return String.fromCharCode.apply(null, new Uint8Array(buffer));
+let bluefruit = {
+  serviceUUID: '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+  txCharacteristic: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', // transmit is from the phone's perspective
+  rxCharacteristic: '6e400003-b5a3-f393-e0a9-e50e24dcca9e'  // receive is from the phone's perspective
 }
 
-// ASCII only
-function stringToBytes(string) {
-    var array = new Uint8Array(string.length);
-    for (var i = 0, l = string.length; i < l; i++) {
-        array[i] = string.charCodeAt(i);
-    }
-    return array.buffer;
+// = Globals ========================================
+
+var ConnectedDeviceId = null
+
+// = Events =========================================
+
+function onLoad () {
+  document.addEventListener('deviceready', onDeviceReady, false)
 }
 
-// this is ble hm-10 UART service
-/*var blue= {
-    serviceUUID: "0000FFE0-0000-1000-8000-00805F9B34FB",
-    characteristicUUID: "0000FFE1-0000-1000-8000-00805F9B34FB"
-};*/
-
-//the bluefruit UART Service
-var blue ={
-	serviceUUID: '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
-    txCharacteristic: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', // transmit is from the phone's perspective
-    rxCharacteristic: '6e400003-b5a3-f393-e0a9-e50e24dcca9e'  // receive is from the phone's perspective
+function onDeviceReady () {
+  refreshDeviceList()
 }
 
-var ConnDeviceId;
-var deviceList =[];
- 
-function onLoad(){
-	document.addEventListener('deviceready', onDeviceReady, false);
-    bleDeviceList.addEventListener('touchstart', conn, false); // assume not scrolling
+function onReceivedDeviceData (data) {
+  document.getElementById('receiveDiv').innerHTML = 'Received: ' + bytesToString(data) + '<br/>'
 }
 
-function onDeviceReady(){
-	refreshDeviceList();
+// = Functionality ==================================
+
+function refreshDeviceList () {
+  document.getElementById('bleDeviceList').innerHTML = ''
+
+  if (cordova.platformId === 'android') {
+    ble.scan([], 5, handleDeviceDiscovered, alert)
+  } else {
+    ble.scan([bluefruit.serviceUUID], 5, handleDeviceDiscovered, handleError)
+  }
 }
 
-	 
-function refreshDeviceList(){
-	//deviceList =[];
-	document.getElementById("bleDeviceList").innerHTML = ''; // empties the list
-	if (cordova.platformId === 'android') { // Android filtering is broken
-		ble.scan([], 5, onDiscoverDevice, onError);
-	} else {
-		//alert("Disconnected");
-		ble.scan([blue.serviceUUID], 5, onDiscoverDevice, onError);
-	}
+function connect (deviceId) {
+  document.getElementById('debugDiv').innerHTML = deviceId
+
+  ble.connect(deviceId, handleBleConnection(deviceId), handleError)
 }
 
-
-function onDiscoverDevice(device){
-	//Make a list in html and show devises
-	
-		var listItem = document.createElement('li'),
-		html = device.name+ "," + device.id;
-		listItem.innerHTML = html;
-		document.getElementById("bleDeviceList").appendChild(listItem);
-	
+function setData (data) {
+  document.getElementById('messageInput').value = data
 }
 
+function sendDataToConnectedDevice () {
+  let data = stringToBytes(document.getElementById('messageInput').value)
 
-function conn(){
-	var  deviceTouch= event.srcElement.innerHTML;
-	document.getElementById("debugDiv").innerHTML =""; // empty debugDiv
-	var deviceTouchArr = deviceTouch.split(",");
-	ConnDeviceId = deviceTouchArr[1];
-	document.getElementById("debugDiv").innerHTML += "<br>"+deviceTouchArr[0]+"<br>"+deviceTouchArr[1]; //for debug:
-	ble.connect(ConnDeviceId, onConnect, onConnError);
- }
- 
- //succes
-function onConnect(){
-	document.getElementById("statusDiv").innerHTML = " Status: Connected";
-	document.getElementById("bleId").innerHTML = ConnDeviceId;
-	ble.startNotification(ConnDeviceId, blue.serviceUUID, blue.rxCharacteristic, onData, onError);
+  ble.writeWithoutResponse(ConnectedDeviceId, bluefruit.serviceUUID, bluefruit.txCharacteristic, data, handleSendDataToDevice, handleError)
 }
 
-//failure
-function onConnError(){
-	alert("Problem connecting");
-	document.getElementById("statusDiv").innerHTML = " Status: Disonnected";
+function disconnect () {
+  ble.disconnect(deviceId, handleDisconnect, handleError)
 }
 
- function onData(data){ // data received from Arduino
-	document.getElementById("receiveDiv").innerHTML =  "Received: " + bytesToString(data) + "<br/>";
+// = Handlers =======================================
+
+function handleDeviceDiscovered (device) {
+  if (device.name !== 'GRINGO') {
+    return null
+  }
+
+  let listItem = document.createElement('li')
+  listItem.classList.add('ble-device')
+  listItem.innerHTML = device.name + ', ' + device.id
+  listItem.onclick = function () {
+    connect(device.id)
+  }
+
+  document.getElementById('bleDeviceList').appendChild(listItem)
 }
 
-function data(txt){
-	messageInput.value = txt;
-}	
+function handleBleConnection (deviceId) {
+  return function () {
+    ConnectedDeviceId = deviceId
 
-function sendData() { // send data to Arduino
-	 var data = stringToBytes(messageInput.value);
-	ble.writeWithoutResponse(ConnDeviceId, blue.serviceUUID, blue.txCharacteristic, data, onSend, onError);
-}
-	
-function onSend(){
-	document.getElementById("sendDiv").innerHTML = "Sent: " + messageInput.value + "<br/>";
+    setConnectionStatus('Connected')
+    document.getElementById('bleId').innerHTML = deviceId
+
+    ble.startNotification(deviceId, bluefruit.serviceUUID, bluefruit.rxCharacteristic, onReceivedDeviceData, handleError)
+  }
 }
 
-function disconnect() {
-	ble.disconnect(deviceId, onDisconnect, onError);
+function handleSendDataToDevice () {
+  document.getElementById('sendDiv').innerHTML = 'Sent: ' + document.getElementById('messageInput').value + '<br/>'
 }
 
-function onDisconnect(){
-	document.getElementById("statusDiv").innerHTML = "Status: Disconnected";
+function handleDisconnect () {
+  setConnectionStatus('Disconnected')
 }
-function onError(reason)  {
-	alert("ERROR: " + reason); // real apps should use notification.alert
+
+function handleError (reason) {
+  alert('ERROR: ' + JSON.stringify(reason))
+}
+
+// = Utils ==========================================
+
+function bytesToString (input) {
+  return String.fromCharCode.apply(null, new Uint8Array(input))
+}
+
+function stringToBytes (input) {
+  return new Uint8Array(input.length)
+    .map(function (_, i) {
+      return input.charCodeAt(i)
+    })
+    .buffer
+}
+
+function setConnectionStatus (status) {
+  document.getElementById('statusDiv').innerHTML = 'Status: ' + status
 }
