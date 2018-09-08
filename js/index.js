@@ -78,14 +78,14 @@ function onData (data) { // data received from Arduino
 }
 
 function onDiscoverDevice (device) {
-  if (device.name !== 'GRINGO') {
-    return null
-  }
-
   // Make a list in html and show devises
   var listItem = document.createElement('li')
-
   listItem.innerHTML = device.name + ',' + device.id
+
+  if (device.name === 'GRINGO') {
+    listItem.innerHTML = '> ' + listItem.innerHTML
+  }
+
   document.getElementById('bleDeviceList').appendChild(listItem)
 }
 
