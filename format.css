@@ -35,27 +35,20 @@ img {
 }
 
 .button {
+    box-sizing: border-box;
     padding: 8px;
-}
-
-/* width will be 100% of content */
-#refreshButton {
     width: 100%;
 }
 
-#sendButton {
-    width: 100%;
+#ledButtonsContainer {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: stretch;
+    align-items: center;
+
+    margin: 0 -4px;
 }
 
-#ledOnButton {
-    width: 50%;
-}
-
-#ledOffButton {
-    width: 50%;
-}
-
-#ledOnButton , #ledOffButton {
-display:inline-block;
-/**other codes**/
+#ledButtonsContainer > .button {
+    margin: 0 4px;
 }
