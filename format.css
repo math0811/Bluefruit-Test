@@ -48,9 +48,14 @@ img {
 }
 
 #ledOnButton {
-    width: 100%;
+    width: 50%;
 }
 
 #ledOffButton {
-    width: 100%;
+    width: 50%;
+}
+
+#ledOnButton , #ledOffButton {
+display:inline-block;
+/**other codes**/
 }
