@@ -1,5 +1,5 @@
 body {
-    background-color: white;
+    background-color: grey;
 }
 
 img {
@@ -12,7 +12,7 @@ img {
 }
 
 #bleDeviceList {
-    height: 256px;
+    height: 128px;
     border: 1px solid lightgrey;
     overflow-y: auto;
 
