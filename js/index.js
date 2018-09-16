@@ -57,9 +57,9 @@ function disconnect () {
 // = Handlers =======================================
 
 function handleDeviceDiscovered (device) { // hver eneste gang scanfunktionen "refreshdevicelist" finder en enhed, sætter den det videre til handleDeviceDiscovered.
-  if (device.name !== 'GRINGO') {
-    return null // scanfunktionen vil kun vise devicenavnet GRINGO i listen
-  } 
+  //if (device.name !== 'GRINGO') {
+  //  return null // scanfunktionen vil kun vise devicenavnet GRINGO i listen
+  //} 
 
   let listItem = document.createElement('li')
   listItem.classList.add('ble-device')
