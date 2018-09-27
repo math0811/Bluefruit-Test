@@ -57,7 +57,7 @@ function disconnect () {
 // = Handlers =======================================
 
 function handleDeviceDiscovered (device) { // hver eneste gang scanfunktionen "refreshdevicelist" finder en enhed, sætter den det videre til handleDeviceDiscovered.
-  if (device.name !== 'GRINGO') {
+  if (device.name !== 'eZBoiler') {
     return null // scanfunktionen vil kun vise devicenavnet GRINGO i listen
   } 
 
